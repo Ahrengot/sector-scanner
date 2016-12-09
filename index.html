@@ -36,10 +36,32 @@
       flex: 1 1 30%;
       position: relative;
       height: 0;
-      padding-bottom: 31%;
+      padding-bottom: 26%;
       margin-left: 2px;
       margin-right: 2px;
       margin-bottom: 4px;
+    }
+
+    @media (max-width: 900px) {
+      .wrapper {
+        flex-basis: 100%;
+        flex-shrink: 0;
+        padding-bottom: 80%;
+      }
+    }
+
+    @media (min-width: 1700px) {
+      .wrapper {
+        flex-basis: 24%;
+        padding-bottom: 20%;
+      }
+    }
+
+    body.layout-column .wrapper {
+      flex-basis: 100% !important;
+      flex-shrink: 0 !important;
+      padding-bottom: 90vh;
+      margin: 0 0 15px;
     }
 
     .wrapper > div,
@@ -58,13 +80,19 @@
 
 <body>
 
-  <h3 style="text-align: center; font-size: 1.4rem; margin-bottom: 1.7rem;">Update timeframe for all charts</h3>
-  <div style="display: flex; justify-content: center;">
-    <div class="btn-group">
-      <a href="./?interval=5" class="btn btn-secondary">5min</a>
-      <a href="./?interval=60" class="btn btn-secondary">Hourly</a>
-      <a href="./?interval=D" class="btn btn-secondary">Daily</a>
-      <a href="./?interval=W" class="btn btn-secondary">Weekly</a>
+  <div style="display: flex; justify-content: center; align-items: center;">
+    <h3 style="font-size: 1.4rem; margin: 0 10px;">Timeframe</h3>
+    <div id="interval-btns" class="btn-group">
+      <a href="?interval=5" class="btn btn-secondary">5min</a>
+      <a href="?interval=60" class="btn btn-secondary">Hourly</a>
+      <a href="?interval=D" class="btn btn-secondary">Daily</a>
+      <a href="?interval=W" class="btn btn-secondary">Weekly</a>
+    </div>
+
+    <h3 style="font-size: 1.4rem; margin: 0 10px;">Layout</h3>
+    <div id="layout-btns" class="btn-group">
+      <a href="?layout=grid" class="btn btn-secondary">Grid</a>
+      <a href="?layout=column" class="btn btn-secondary">Column</a>
     </div>
   </div>
 
@@ -86,15 +114,43 @@
   </div>
 
   <script>
+    // Get interval from URL
     let interval = 'D';
-    if ( location.search && location.search.match(/interval/) ) {
+    if ( location.search && location.search.match(/interval=/) ) {
       interval = location.search.match(/interval\=([^&]+)/)[1];
+
+      // Set active state on button
+      document.querySelector(`#interval-btns a[href*="${interval}"]`).classList.add('active');
+
+      // Update layout button links if interval is set
+      document.querySelectorAll('#layout-btns a').forEach(el => {
+        el.setAttribute('href', el.getAttribute('href') + '&interval=' + interval)
+      });
+    } else {
+      document.querySelector(`#interval-btns a[href*="${interval}"]`).classList.add('active');
+    }
+
+    // Get layout from URL
+    const layout = 'grid';
+    if ( location.search && location.search.match(/layout=/) ) {
+      const layout = location.search.match(/layout\=([^&]+)/)[1];
+      document.body.classList.add(`layout-${layout}`);
+
+      // Set active state on button
+      document.querySelector(`#layout-btns a[href*="${layout}"]`).classList.add('active');
+
+      // Update button links if layout or interval is set
+      document.querySelectorAll('#interval-btns a').forEach(el => {
+        el.setAttribute('href', el.getAttribute('href') + '&layout=' + layout)
+      });
+    } else {
+      document.querySelector(`#layout-btns a[href*="${layout}"]`).classList.add('active');
     }
 
     const symbols = {
       indexes: [
-        'OANDA:DE30EUR',
-        'AMEX:SPY'
+        'AMEX:SPY',
+        'OANDA:DE30EUR'
       ],
       commodities: [
         'OANDA:XAUUSD',
@@ -123,7 +179,7 @@
     const defaultProps = {
       autosize: true,
       interval: interval,
-      timezone: "Europe/Berlin",
+      timezone: "exchange",
       theme: "White",
       style: "1",
       locale: "en",
@@ -131,11 +187,18 @@
       enable_publishing: false,
       allow_symbol_change: true,
       hideideas: true,
+      calendar: true,
+      news: [
+        "headlines"
+      ],
       show_popup_button: true,
       popup_width: "1000",
       popup_height: "650"
     }
 
+    /**
+     * Render charts
+     */
     const groups = ['indexes', 'commodities', 'sectors'];
     groups.forEach(group => {
       symbols[group].forEach(symbol => {
