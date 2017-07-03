@@ -107,6 +107,11 @@
       <div class="charts"></div>
     </section>
 
+    <section id="cryptos">
+      <h1>Crypto currencies</h1>
+      <div class="charts"></div>
+    </section>
+
     <section id="sectors">
       <h1>Sectors</h1>
       <div class="charts"></div>
@@ -162,6 +167,11 @@
         'OANDA:XCUUSD',
         'FX:USDOLLAR',
       ],
+      cryptos: [
+        'COINBASE:BTCUSD',
+        'COINBASE:ETHUSD',
+        'COINBASE:LTCUSD',
+      ],
       sectors: [
         'INDEX:BTK',
         'AMEX:XLY',
@@ -201,7 +211,7 @@
     /**
      * Render charts
      */
-    const groups = ['indexes', 'commodities', 'sectors'];
+    const groups = ['indexes', 'commodities', 'cryptos', 'sectors'];
     groups.forEach(group => {
       symbols[group].forEach(symbol => {
         const container = document.createElement('div');
